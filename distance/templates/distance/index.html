@@ -94,7 +94,7 @@
 
     <script>
 
-      var map, infoWindow, circle;
+      var map, infoWindow, circle, userLatLng;
 
       function initMap() {
 
@@ -130,10 +130,10 @@
             infoWindow.setPosition(pos);
             map.setCenter(pos);
 
-            var userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             console.log('userLatLng: ' + userLatLng);
 
-            searchMedicalCenters(map, userLatLng);
+            searchMedicalCenters();
 
             createCircle(userLatLng, getRadius(), map);
 
@@ -155,7 +155,7 @@
           var lat = e.latLng.lat();
           var lng = e.latLng.lng();
           console.log('radius ' + getRadius());
-          var userLatLng = new google.maps.LatLng(lat, lng);
+          userLatLng = new google.maps.LatLng(lat, lng);
           console.log('new position ' + userLatLng);
           refreshMap(this, userLatLng);
           map.panTo(e.latLng);
@@ -196,26 +196,26 @@
         });
       }
 
-      function searchMedicalCenters(map, userLatLng) {
+      function searchMedicalCenters() {
         var service = new google.maps.places.PlacesService(map);
         service.textSearch({
           location: userLatLng,
           radius: getRadius(),
           query: "medical center"
-        }, markResults);
+        }, processResults);
       }
 
-      function markResults(results, status) {
+      function processResults(results, status, pagination) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-          console.log('RESULTS');
+          console.log('RESULTS: ' + results.length);
           for (var i = 0; i < results.length; i++) {
-            console.log('result: ' + results[i]);
             createMarker(results[i]);
           }
+          calculateDistance(results);
         }
       }
 
-      function refreshMap(map, userLatLng) {
+      function refreshMap() {
         circle.setMap(null);
         searchMedicalCenters(map, userLatLng);
         createCircle(userLatLng, getRadius(), map);
@@ -226,6 +226,13 @@
         return radius;
       }
 
+      function calculateDistance(results) {
+        //console.clear();
+        for (var i = 0; i < results.length; i++) {
+          var distance = google.maps.geometry.spherical.computeDistanceBetween(results[i].geometry.location, userLatLng);
+          console.log('name: ' + results[i].name + ', distance: ' + distance);
+        }
+      }
 
     </script>
   </body>
