@@ -211,7 +211,7 @@
           for (var i = 0; i < results.length; i++) {
             createMarker(results[i]);
           }
-          calculateDistance(results);
+          createRequest(results);
         }
       }
 
@@ -226,12 +226,31 @@
         return radius;
       }
 
-      function calculateDistance(results) {
-        //console.clear();
-        for (var i = 0; i < results.length; i++) {
-          var distance = google.maps.geometry.spherical.computeDistanceBetween(results[i].geometry.location, userLatLng);
-          console.log('name: ' + results[i].name + ', distance: ' + distance);
-        }
+      function createRequest(results) {
+
+        let resultsRequest = results.map((val, index, arr) => {
+          var result = new Object();
+          var location = new Object();
+          location.lat = val.geometry.location.lat();
+          location.lng = val.geometry.location.lng();
+          result.location = location;
+          result.distance = calculateDistance(val.geometry.location);
+          result.name = val.name;
+          return result;
+        });
+
+        var places = new Object();
+        places.results = resultsRequest;
+        places.status = "OK";
+
+        var json = JSON.stringify(places);
+
+        console.log('json: ' + json);
+      }
+
+      function calculateDistance(location) {
+          var distance = google.maps.geometry.spherical.computeDistanceBetween(location, userLatLng);
+          return distance;
       }
 
     </script>
