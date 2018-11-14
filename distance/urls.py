@@ -1,8 +1,9 @@
 from django.urls import path
+from rest_framework.urlpatterns import format_suffix_patterns
+from distance import views
 
-from . import views
-
-app_name = 'distance'
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('distance/', views.results_list),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
